@@ -34,3 +34,15 @@ export default function UserProfilePage({ user, posts }) {
     </main>
   );
 }
+
+export async function getServerSideProps({ query }) {
+  const { username } = query;
+  const userDoc = await getUserWithUsername(username);
+
+  // If no user, short circuit to 404 page
+  if (!userDoc) {
+    return {
+      notFound: true,
+    };
+  }
+}
