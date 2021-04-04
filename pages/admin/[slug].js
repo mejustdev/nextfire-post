@@ -6,10 +6,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { useDocumentData } from 'react-firebase-hooks/firestore';
+import { useDocumentDataOnce } from 'react-firebase-hooks/firestore';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+
+import ImageUploader from '../../components/ImageUploader';
 
 export default function AdminPostEdit(props) {
   return (
@@ -30,7 +33,7 @@ function PostManager() {
     .doc(auth.currentUser.uid)
     .collection('posts')
     .doc(slug);
-  const [post] = useDocumentData(postRef);
+  const [post] = useDocumentDataOnce(postRef);
 
   return (
     <main className={styles.container}>
@@ -57,7 +60,7 @@ function PostManager() {
 }
 
 function PostForm({ defaultValues, postRef, preview }) {
-  const { register, handleSubmit, reset, watch, formState, errors } = useForm({
+  const { register, errors, handleSubmit, formState, reset, watch } = useForm({
     defaultValues,
     mode: 'onChange',
   });
@@ -85,6 +88,8 @@ function PostForm({ defaultValues, postRef, preview }) {
       )}
 
       <div className={preview ? styles.hidden : styles.controls}>
+        <ImageUploader />
+
         <textarea
           name='content'
           ref={register({
@@ -96,16 +101,12 @@ function PostForm({ defaultValues, postRef, preview }) {
 
         {errors.content && <p className='text-danger'>{errors.content.message}</p>}
 
-        <button type='submit' disabled={!isDirty || !isValid}>
-          Save Changes
-        </button>
-
         <fieldset>
           <input className={styles.checkbox} name='published' type='checkbox' ref={register} />
           <label>Published</label>
         </fieldset>
 
-        <button type='submit' className='btn-green'>
+        <button type='submit' className='btn-green' disabled={!isDirty || !isValid}>
           Save Changes
         </button>
       </div>
